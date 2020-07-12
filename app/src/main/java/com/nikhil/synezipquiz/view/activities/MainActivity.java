@@ -42,6 +42,8 @@ public class MainActivity extends AppCompatActivity
 
 	private Runnable runnable;
 
+	int score = 0;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -76,9 +78,7 @@ public class MainActivity extends AppCompatActivity
 			public void onClick(View v)
 			{
 				checkClickedEvent(1, activityMainBinding.btnOptionOne.getText().toString(),
-						activityMainBinding.llOptionOne, activityMainBinding.btnOptionOne);
-
-				//handler.
+						activityMainBinding.llOptionOne, activityMainBinding.btnOptionOne, true);
 			}
 		});
 
@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity
 			public void onClick(View v)
 			{
 				checkClickedEvent(2, activityMainBinding.btnOptionTwo.getText().toString(),
-						activityMainBinding.llOptionTwo, activityMainBinding.btnOptionTwo);
+						activityMainBinding.llOptionTwo, activityMainBinding.btnOptionTwo, true);
 			}
 		});
 
@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity
 			public void onClick(View v)
 			{
 				checkClickedEvent(3, activityMainBinding.btnOptionThree.getText().toString(),
-						activityMainBinding.llOptionThree, activityMainBinding.btnOptionThree);
+						activityMainBinding.llOptionThree, activityMainBinding.btnOptionThree, true);
 			}
 		});
 
@@ -108,21 +108,25 @@ public class MainActivity extends AppCompatActivity
 			public void onClick(View v)
 			{
 				checkClickedEvent(4, activityMainBinding.btnOptionFour.getText().toString(),
-						activityMainBinding.llOptionFour, activityMainBinding.btnOptionFour);
+						activityMainBinding.llOptionFour, activityMainBinding.btnOptionFour, true);
 			}
 		});
 	}
 
-	private void checkClickedEvent(int position, String s, View viewToFlip, TextView textView)
+	private void checkClickedEvent(int position, String s, View viewToFlip, TextView textView, boolean fromOptionClick)
 	{
 		viewToFlip.setClickable(false);
 
 		if (correctOption == position)
 		{
-			Toast.makeText(this, "Correct Answer", Toast.LENGTH_SHORT).show();
 			flipView(textView, true);
 			flipLinearLayout(viewToFlip, true);
 			setupNextQuestion();
+			if (fromOptionClick)
+			{
+				Toast.makeText(this, "Correct Answer", Toast.LENGTH_SHORT).show();
+				score++;
+			}
 		}
 		else
 		{
@@ -164,22 +168,22 @@ public class MainActivity extends AppCompatActivity
 		{
 			case 1:
 				checkClickedEvent(1, activityMainBinding.btnOptionOne.getText().toString(),
-						activityMainBinding.llOptionOne, activityMainBinding.btnOptionOne);
+						activityMainBinding.llOptionOne, activityMainBinding.btnOptionOne, false);
 				break;
 
 			case 2:
 				checkClickedEvent(2, activityMainBinding.btnOptionTwo.getText().toString(),
-						activityMainBinding.llOptionTwo, activityMainBinding.btnOptionTwo);
+						activityMainBinding.llOptionTwo, activityMainBinding.btnOptionTwo, false);
 				break;
 
 			case 3:
 				checkClickedEvent(3, activityMainBinding.btnOptionThree.getText().toString(),
-						activityMainBinding.llOptionThree, activityMainBinding.btnOptionThree);
+						activityMainBinding.llOptionThree, activityMainBinding.btnOptionThree, false);
 				break;
 
 			case 4:
 				checkClickedEvent(4, activityMainBinding.btnOptionFour.getText().toString(),
-						activityMainBinding.llOptionFour, activityMainBinding.btnOptionFour);
+						activityMainBinding.llOptionFour, activityMainBinding.btnOptionFour, false);
 				break;
 		}
 	}
@@ -215,6 +219,8 @@ public class MainActivity extends AppCompatActivity
 
 			activityMainBinding.progressBar.setProgress(0);
 
+			activityMainBinding.tvScore.setText("Score : " + score);
+
 			activityMainBinding.llOptionOne
 					.setBackground(getResources().getDrawable(R.drawable.default_option_border_bg));
 			activityMainBinding.llOptionTwo
@@ -231,7 +237,7 @@ public class MainActivity extends AppCompatActivity
 			activityMainBinding.btnOptionFour.setText(currentQuestion.getOption4());
 			correctOption = currentQuestion.getAnswer();
 			questionCounter++;
-			showProgressDialog();
+			//showProgressDialog();
 		}
 		else
 		{
