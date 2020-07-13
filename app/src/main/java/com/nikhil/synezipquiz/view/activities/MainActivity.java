@@ -1,10 +1,13 @@
 package com.nikhil.synezipquiz.view.activities;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.animation.ObjectAnimator;
+import android.content.res.ColorStateList;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -259,6 +262,7 @@ public class MainActivity extends AppCompatActivity
 	{
 		countDownTimer = new CountDownTimer(timeLeftInMillis, 1000)
 		{
+			@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 			@Override
 			public void onTick(long millisUntilFinished)
 			{
@@ -266,6 +270,7 @@ public class MainActivity extends AppCompatActivity
 				updateCountDownText();
 			}
 
+			@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 			@Override
 			public void onFinish()
 			{
@@ -279,12 +284,32 @@ public class MainActivity extends AppCompatActivity
 		}.start();
 	}
 
+	@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 	private void updateCountDownText()
 	{
-		int minutes = (int) (timeLeftInMillis / 1000) / 60;
 		int seconds = (int) (timeLeftInMillis / 1000) % 60;
-		String timeFormatted = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
-		activityMainBinding.tvProgress.setText(seconds + "/20");
+		activityMainBinding.tvProgress.setText(seconds + "/30");
+		if (seconds > 20)
+		{
+			activityMainBinding.progressBar
+					.setProgressTintList(ColorStateList.valueOf(getResources().getColor(R.color.darkGreen)));
+		}
+		else if (seconds <= 20 && seconds > 15)
+		{
+			activityMainBinding.progressBar
+					.setProgressTintList(ColorStateList.valueOf(getResources().getColor(R.color.green_light)));
+		}
+		else if (seconds <= 15 && seconds > 5)
+		{
+			activityMainBinding.progressBar
+					.setProgressTintList(ColorStateList.valueOf(getResources().getColor(R.color.red_light)));
+		}
+		else
+		{
+			activityMainBinding.progressBar
+					.setProgressTintList(ColorStateList.valueOf(getResources().getColor(R.color.red_dark)));
+		}
+
 		activityMainBinding.progressBar.setProgress(seconds);
 	}
 }
