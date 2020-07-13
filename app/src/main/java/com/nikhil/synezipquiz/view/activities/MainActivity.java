@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity
 
 		if (correctOption == position)
 		{
-			flipView(textView, true);
+			flipTextView(textView);
 			flipLinearLayout(viewToFlip, true);
 			setupNextQuestion();
 			if (fromOptionClick)
@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity
 		{
 			Toast.makeText(this, "Wrong Answer", Toast.LENGTH_SHORT).show();
 			flipLinearLayout(viewToFlip, false);
-			flipView(textView, false);
+			flipTextView(textView);
 			forceCorrectAnswerFlip();
 		}
 
@@ -214,7 +214,7 @@ public class MainActivity extends AppCompatActivity
 		}
 	}
 
-	private void flipView(final View viewToFlip, boolean isCorrect)
+	private void flipTextView(final View viewToFlip)
 	{
 		ObjectAnimator flip = ObjectAnimator.ofFloat(viewToFlip, "rotationX", 0f, 180f);
 		flip.setDuration(0);
