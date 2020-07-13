@@ -2,11 +2,14 @@ package com.nikhil.synezipquiz.view.activities;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.animation.ObjectAnimator;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -262,7 +265,6 @@ public class MainActivity extends AppCompatActivity
 	{
 		countDownTimer = new CountDownTimer(timeLeftInMillis, 1000)
 		{
-			@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 			@Override
 			public void onTick(long millisUntilFinished)
 			{
@@ -270,7 +272,6 @@ public class MainActivity extends AppCompatActivity
 				updateCountDownText();
 			}
 
-			@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 			@Override
 			public void onFinish()
 			{
@@ -284,7 +285,6 @@ public class MainActivity extends AppCompatActivity
 		}.start();
 	}
 
-	@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 	private void updateCountDownText()
 	{
 		int seconds = (int) (timeLeftInMillis / 1000) % 60;
