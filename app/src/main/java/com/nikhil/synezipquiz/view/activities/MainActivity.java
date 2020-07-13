@@ -6,8 +6,8 @@ import androidx.lifecycle.ViewModelProviders;
 
 import android.animation.ObjectAnimator;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,10 +19,13 @@ import com.nikhil.synezipquiz.viewModels.MainActivityViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity
 {
 	private static final String TAG = "MainActivity";
+
+	private static final long TIMER_SPAN = 31000;
 
 	MainActivityViewModel mainActivityViewModel;
 
@@ -36,13 +39,11 @@ public class MainActivity extends AppCompatActivity
 
 	private int questionCounter = 0;
 
-	private int status;
-
-	Handler handler = new Handler();
-
-	private Runnable runnable;
-
 	int score = 0;
+
+	private CountDownTimer countDownTimer;
+
+	private long timeLeftInMillis;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -58,12 +59,10 @@ public class MainActivity extends AppCompatActivity
 			public void onChanged(List<QuestionsTable> questionsTables)
 			{
 				questionsTableList = questionsTables;
-				Log.d(TAG, "onChanged: questionsTableList size:" + questionsTableList.size());
-				for (int i = 0; i < questionsTableList.size(); i++)
+				if (questionsTables.size() > 0)
 				{
-					Log.d(TAG, "onChanged: " + questionsTableList.get(i).toString());
+					onOptionsClicked();
 				}
-				onOptionsClicked();
 			}
 		});
 	}
@@ -116,6 +115,11 @@ public class MainActivity extends AppCompatActivity
 	private void checkClickedEvent(int position, String s, View viewToFlip, TextView textView, boolean fromOptionClick)
 	{
 		viewToFlip.setClickable(false);
+
+		if (countDownTimer != null)
+		{
+			countDownTimer.cancel();
+		}
 
 		if (correctOption == position)
 		{
@@ -237,7 +241,8 @@ public class MainActivity extends AppCompatActivity
 			activityMainBinding.btnOptionFour.setText(currentQuestion.getOption4());
 			correctOption = currentQuestion.getAnswer();
 			questionCounter++;
-			//showProgressDialog();
+			timeLeftInMillis = TIMER_SPAN;
+			startCountDown();
 		}
 		else
 		{
@@ -250,47 +255,36 @@ public class MainActivity extends AppCompatActivity
 		mainActivityViewModel = ViewModelProviders.of(MainActivity.this).get(MainActivityViewModel.class);
 	}
 
-	public void showProgressDialog()
+	private void startCountDown()
 	{
-		status = 0;
-
-		new Thread(new Runnable()
+		countDownTimer = new CountDownTimer(timeLeftInMillis, 1000)
 		{
 			@Override
-			public void run()
+			public void onTick(long millisUntilFinished)
 			{
-				while (status < 20)
-				{
-					status += 1;
-
-					try
-					{
-						Thread.sleep(1000);
-					}
-					catch (InterruptedException e)
-					{
-						e.printStackTrace();
-					}
-
-					runnable = new Runnable()
-					{
-						@Override
-						public void run()
-						{
-							activityMainBinding.progressBar.setProgress(status);
-							activityMainBinding.tvProgress.setText(status + "/20");
-
-							if (status == 20)
-							{
-								forceCorrectAnswerFlip();
-							}
-						}
-					};
-
-					handler.post(runnable);
-				}
+				timeLeftInMillis = millisUntilFinished;
+				updateCountDownText();
 			}
-		}).start();
 
+			@Override
+			public void onFinish()
+			{
+				timeLeftInMillis = 0;
+				updateCountDownText();
+				forceCorrectAnswerFlip();
+				Toast.makeText(MainActivity.this, "Times Up!!", Toast.LENGTH_SHORT).show();
+				if (countDownTimer != null)
+					countDownTimer.cancel();
+			}
+		}.start();
+	}
+
+	private void updateCountDownText()
+	{
+		int minutes = (int) (timeLeftInMillis / 1000) / 60;
+		int seconds = (int) (timeLeftInMillis / 1000) % 60;
+		String timeFormatted = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
+		activityMainBinding.tvProgress.setText(seconds + "/20");
+		activityMainBinding.progressBar.setProgress(seconds);
 	}
 }
