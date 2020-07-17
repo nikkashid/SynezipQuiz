@@ -131,12 +131,13 @@ public class MainActivity extends AppCompatActivity
 		{
 			flipTextView(textView);
 			flipLinearLayout(viewToFlip, true);
-			setupNextQuestion();
 			if (fromOptionClick)
 			{
 				Toast.makeText(this, "Correct Answer", Toast.LENGTH_SHORT).show();
 				score++;
+				activityMainBinding.tvScore.setText("Score : " + score * 10);
 			}
+			flipStarView();
 		}
 		else
 		{
@@ -221,6 +222,27 @@ public class MainActivity extends AppCompatActivity
 		flip.start();
 	}
 
+	private void flipStarView()
+	{
+		activityMainBinding.rlStartView.setVisibility(View.VISIBLE);
+		ObjectAnimator flip = ObjectAnimator.ofFloat(activityMainBinding.rlInnerLayoutForRotation, "rotationY", 0f,
+				360f);
+		activityMainBinding.tvStarScore.setText("You Scored \n " + score * 10 + " \n Points");
+		flip.setDuration(3000);
+		flip.start();
+
+		final Handler handler2 = new Handler();
+		handler2.postDelayed(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				activityMainBinding.rlStartView.setVisibility(View.GONE);
+				setupNextQuestion();
+			}
+		}, 2000);
+	}
+
 	public void setNextQuestion()
 	{
 		if (questionCounter < questionsTableList.size())
@@ -229,7 +251,7 @@ public class MainActivity extends AppCompatActivity
 
 			activityMainBinding.progressBar.setProgress(0);
 
-			activityMainBinding.tvScore.setText("Score : " + score);
+			activityMainBinding.tvScore.setText("Score : " + score * 10);
 
 			activityMainBinding.llOptionOne
 					.setBackground(getResources().getDrawable(R.drawable.default_option_border_bg));
