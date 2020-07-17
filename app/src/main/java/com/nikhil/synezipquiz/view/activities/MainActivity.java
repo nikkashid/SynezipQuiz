@@ -1,20 +1,20 @@
 package com.nikhil.synezipquiz.view.activities;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.animation.ObjectAnimator;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,13 +25,14 @@ import com.nikhil.synezipquiz.viewModels.MainActivityViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity
 {
 	private static final String TAG = "MainActivity";
 
 	private static final long TIMER_SPAN = 31000;
+
+	private static final String QUIZ_COMPLETED = "Quiz has been completed.";
 
 	MainActivityViewModel mainActivityViewModel;
 
@@ -51,6 +52,8 @@ public class MainActivity extends AppCompatActivity
 
 	private long timeLeftInMillis;
 
+	private AnimationSet animation;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -58,6 +61,7 @@ public class MainActivity extends AppCompatActivity
 		activityMainBinding = ActivityMainBinding.inflate(getLayoutInflater());
 		setContentView(activityMainBinding.getRoot());
 		initViewModel();
+		initAnimations();
 
 		mainActivityViewModel.getAllQuestions().observe(this, new Observer<List<QuestionsTable>>()
 		{
@@ -73,6 +77,23 @@ public class MainActivity extends AppCompatActivity
 		});
 	}
 
+	private void initAnimations()
+	{
+		Animation fadeIn = new AlphaAnimation(0, 1);
+		fadeIn.setInterpolator(new DecelerateInterpolator()); //add this
+		fadeIn.setDuration(2000);
+
+		Animation fadeOut = new AlphaAnimation(1, 0);
+		fadeOut.setInterpolator(new AccelerateInterpolator()); //and this
+		fadeOut.setStartOffset(2000);
+		fadeOut.setDuration(2000);
+
+		animation = new AnimationSet(false); //change to false
+		animation.addAnimation(fadeIn);
+		animation.addAnimation(fadeOut);
+		activityMainBinding.rlInnerLayoutForRotation.setAnimation(animation);
+	}
+
 	private void onOptionsClicked()
 	{
 		setNextQuestion();
@@ -82,8 +103,17 @@ public class MainActivity extends AppCompatActivity
 			@Override
 			public void onClick(View v)
 			{
-				checkClickedEvent(1, activityMainBinding.btnOptionOne.getText().toString(),
-						activityMainBinding.llOptionOne, activityMainBinding.btnOptionOne, true);
+				if (questionCounter < questionsTableList.size())
+				{
+					checkClickedEvent(1, activityMainBinding.btnOptionOne.getText().toString(),
+							activityMainBinding.llOptionOne, activityMainBinding.btnOptionOne, true);
+					if (questionCounter == 5)
+						questionCounter++;
+				}
+				else
+				{
+					Toast.makeText(MainActivity.this, QUIZ_COMPLETED, Toast.LENGTH_SHORT).show();
+				}
 			}
 		});
 
@@ -92,8 +122,17 @@ public class MainActivity extends AppCompatActivity
 			@Override
 			public void onClick(View v)
 			{
-				checkClickedEvent(2, activityMainBinding.btnOptionTwo.getText().toString(),
-						activityMainBinding.llOptionTwo, activityMainBinding.btnOptionTwo, true);
+				if (questionCounter < questionsTableList.size())
+				{
+					checkClickedEvent(2, activityMainBinding.btnOptionTwo.getText().toString(),
+							activityMainBinding.llOptionTwo, activityMainBinding.btnOptionTwo, true);
+					if (questionCounter == 5)
+						questionCounter++;
+				}
+				else
+				{
+					Toast.makeText(MainActivity.this, QUIZ_COMPLETED, Toast.LENGTH_SHORT).show();
+				}
 			}
 		});
 
@@ -102,8 +141,17 @@ public class MainActivity extends AppCompatActivity
 			@Override
 			public void onClick(View v)
 			{
-				checkClickedEvent(3, activityMainBinding.btnOptionThree.getText().toString(),
-						activityMainBinding.llOptionThree, activityMainBinding.btnOptionThree, true);
+				if (questionCounter <= questionsTableList.size())
+				{
+					checkClickedEvent(3, activityMainBinding.btnOptionThree.getText().toString(),
+							activityMainBinding.llOptionThree, activityMainBinding.btnOptionThree, true);
+					if (questionCounter == 5)
+						questionCounter++;
+				}
+				else
+				{
+					Toast.makeText(MainActivity.this, QUIZ_COMPLETED, Toast.LENGTH_SHORT).show();
+				}
 			}
 		});
 
@@ -112,8 +160,17 @@ public class MainActivity extends AppCompatActivity
 			@Override
 			public void onClick(View v)
 			{
-				checkClickedEvent(4, activityMainBinding.btnOptionFour.getText().toString(),
-						activityMainBinding.llOptionFour, activityMainBinding.btnOptionFour, true);
+				if (questionCounter <= questionsTableList.size())
+				{
+					checkClickedEvent(4, activityMainBinding.btnOptionFour.getText().toString(),
+							activityMainBinding.llOptionFour, activityMainBinding.btnOptionFour, true);
+					if (questionCounter == 5)
+						questionCounter++;
+				}
+				else
+				{
+					Toast.makeText(MainActivity.this, QUIZ_COMPLETED, Toast.LENGTH_SHORT).show();
+				}
 			}
 		});
 	}
@@ -170,7 +227,7 @@ public class MainActivity extends AppCompatActivity
 			{
 				setNextQuestion();
 			}
-		}, 3000);
+		}, 2000);
 	}
 
 	private void forceCorrectAnswerFlip()
@@ -225,6 +282,7 @@ public class MainActivity extends AppCompatActivity
 	private void flipStarView()
 	{
 		activityMainBinding.rlStartView.setVisibility(View.VISIBLE);
+		initAnimations();
 		ObjectAnimator flip = ObjectAnimator.ofFloat(activityMainBinding.rlInnerLayoutForRotation, "rotationY", 0f,
 				360f);
 		activityMainBinding.tvStarScore.setText("You Scored \n " + score * 10 + " \n Points");
@@ -240,7 +298,7 @@ public class MainActivity extends AppCompatActivity
 				activityMainBinding.rlStartView.setVisibility(View.GONE);
 				setupNextQuestion();
 			}
-		}, 2000);
+		}, 4000);
 	}
 
 	public void setNextQuestion()
@@ -274,7 +332,7 @@ public class MainActivity extends AppCompatActivity
 		}
 		else
 		{
-			Toast.makeText(this, "Quiz Completed.", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, QUIZ_COMPLETED, Toast.LENGTH_SHORT).show();
 		}
 	}
 
